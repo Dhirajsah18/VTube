@@ -1,0 +1,42 @@
+@import "tailwindcss";
+
+/* base */
+html,
+body {
+  @apply bg-neutral-950 text-neutral-100;
+}
+
+/* reusable card */
+.card {
+  @apply bg-neutral-900 border border-neutral-800 rounded-xl;
+}
+
+/* primary orange button */
+.btn-primary {
+  @apply bg-orange-400 hover:bg-orange-500 active:bg-orange-600
+         text-black font-medium rounded-lg transition;
+}
+
+/* scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-thumb {
+  background-color: #525252; /* neutral-600 */
+}
+/* clickable feel */
+a {
+  @apply transition;
+}
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.animate-slideIn {
+  animation: slideIn 0.25s ease-out;
+}
