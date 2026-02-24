@@ -1,4 +1,5 @@
-import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { HiMenu } from "react-icons/hi";
 import { useAuth } from "../../context/AuthContext";
 import { logoutUser } from "../../api/auth.api";
@@ -7,6 +8,17 @@ import logo from "../../assets/vtube-logo.png";
 export default function Navbar({ onMenuClick }) {
   const { user, setUser, loading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    if (location.pathname === "/search") {
+      const params = new URLSearchParams(location.search);
+      setSearchQuery(params.get("q") || "");
+      return;
+    }
+    setSearchQuery("");
+  }, [location.pathname, location.search]);
 
   const handleLogout = async () => {
     try {
@@ -18,6 +30,13 @@ export default function Navbar({ onMenuClick }) {
       setUser(null);
       navigate("/login");
     }
+  };
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    const q = searchQuery.trim();
+    if (!q) return;
+    navigate(`/search?q=${encodeURIComponent(q)}`);
   };
 
   return (
@@ -39,10 +58,15 @@ export default function Navbar({ onMenuClick }) {
         </div>
 
         {/* Center */}
-        <div className="hidden md:flex flex-1 max-w-xl mx-6">
+        <form
+          onSubmit={handleSearchSubmit}
+          className="hidden md:flex flex-1 max-w-xl mx-6"
+        >
           <input
             type="text"
-            placeholder="Search"
+            placeholder="Search videos or channels"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="
               w-full px-4 py-2 rounded-full
               bg-neutral-900 border border-neutral-800
@@ -50,7 +74,7 @@ export default function Navbar({ onMenuClick }) {
               focus:outline-none focus:ring-2 focus:ring-orange-400/40
             "
           />
-        </div>
+        </form>
 
         {/* Right */}
         <div className="flex items-center gap-3">
@@ -92,7 +116,7 @@ export default function Navbar({ onMenuClick }) {
                   className="h-8 w-8 rounded-full object-cover"
                 />
                 <span className="text-sm text-neutral-200">
-                  @{user.username}
+                  {user.username}
                 </span>
               </Link>
 

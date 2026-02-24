@@ -3,9 +3,16 @@ import { useEffect, useState } from "react";
 import MainLayout from "../layout/MainLayout";
 import { getAllVideos } from "../api/video.api";
 import VideoGrid from "../components/video/VideoGrid";
+import { useAuth } from "../context/AuthContext";
+import {
+  addVideoToPlaylist,
+  getUserPlaylists,
+} from "../api/playlist.api";
 
 export default function Home() {
+  const { user } = useAuth();
   const [videos, setVideos] = useState([]);
+  const [playlists, setPlaylists] = useState([]);
   const [page, setPage] = useState(1);
   const [hasNext, setHasNext] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -14,6 +21,15 @@ export default function Home() {
     loadVideos();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
+
+  useEffect(() => {
+    if (!user?._id) {
+      setPlaylists([]);
+      return;
+    }
+    loadPlaylists();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?._id]);
 
   const loadVideos = async () => {
     try {
@@ -34,6 +50,25 @@ export default function Home() {
     }
   };
 
+  const loadPlaylists = async () => {
+    try {
+      const res = await getUserPlaylists(user._id);
+      setPlaylists(res?.data?.data || []);
+    } catch (err) {
+      console.error("Failed to load playlists", err);
+      setPlaylists([]);
+    }
+  };
+
+  const handleAddToPlaylist = async (videoId, playlistId) => {
+    try {
+      await addVideoToPlaylist(videoId, playlistId);
+    } catch (err) {
+      console.error("Failed to add video to playlist", err);
+      throw err;
+    }
+  };
+
   return (
     <MainLayout>
       {loading && page === 1 ? (
@@ -45,8 +80,13 @@ export default function Home() {
           No videos available
         </div>
       ) : (
-        <>
-          <VideoGrid videos={videos} />
+      <>
+          <VideoGrid
+            videos={videos}
+            playlists={playlists}
+            onAddToPlaylist={handleAddToPlaylist}
+            showPlaylistMenu
+          />
 
           {hasNext && (
             <div className="flex justify-center mt-8">

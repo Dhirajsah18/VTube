@@ -38,7 +38,7 @@ const getPlaylistById = asyncHandler(async (req, res) => {
     if (!playlist) {
         throw new ApiError(404, "Playlist not found");
     }
-    if (playlist.owner !== req.user._id.toString()) {
+    if (!playlist.owner.equals(req.user._id)) {
         throw new ApiError(403, "Not authorized");
     }
     return res
@@ -55,10 +55,10 @@ const addVideoToPlaylist = asyncHandler(async (req, res) => {
     if (!playlist) {
         throw new ApiError(404, "Playlist not found");
     }
-    if (playlist.owner !== req.user._id.toString()) {
+    if (!playlist.owner.equals(req.user._id)) {
         throw new ApiError(403, "Not authorized");
     }
-    if (playlist.videos.includes(videoId)) {
+    if (playlist.videos.some((id) => id.equals(videoId))) {
         throw new ApiError(400, "Video already in playlist");
     }
     playlist.videos.push(videoId);
@@ -77,7 +77,7 @@ const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
     if (!playlist) {
         throw new ApiError(404, "Playlist not found");
     }
-    if (playlist.owner !== req.user._id.toString()) {
+    if (!playlist.owner.equals(req.user._id)) {
         throw new ApiError(403, "Not authorized");
     }
     playlist.videos = playlist.videos.filter(id => id.toString() !== videoId);
@@ -96,7 +96,7 @@ const deletePlaylist = asyncHandler(async (req, res) => {
     if (!playlist) {
         throw new ApiError(404, "Playlist not found");
     }
-    if (playlist.owner !== req.user._id.toString()) {
+    if (!playlist.owner.equals(req.user._id)) {
         throw new ApiError(403, "Not authorized");
     }
     await Playlist.findByIdAndDelete(playlistId);
@@ -115,7 +115,7 @@ const updatePlaylist = asyncHandler(async (req, res) => {
     if (!playlist) {
         throw new ApiError(404, "Playlist not found");
     }
-    if (playlist.owner !== req.user._id.toString()) {
+    if (!playlist.owner.equals(req.user._id)) {
         throw new ApiError(403, "Not authorized");
     }
     if (name) playlist.name = name;

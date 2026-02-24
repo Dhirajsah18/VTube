@@ -24,9 +24,9 @@ export default function CommentList({ videoId }) {
     try {
       setLoading(true);
       const res = await getVideoComments(videoId);
-      setComments(res.data.data.docs || []);
+      setComments(res.data.data.comments || []);
     } catch (err) {
-      console.error("Failed to load comments");
+      console.error("Failed to load comments", err);
     } finally {
       setLoading(false);
     }
@@ -40,7 +40,7 @@ export default function CommentList({ videoId }) {
       setComments((prev) => [res.data.data, ...prev]);
       setContent("");
     } catch (err) {
-      console.error("Failed to add comment");
+      console.error("Failed to add comment", err);
     }
   };
 
@@ -51,7 +51,7 @@ export default function CommentList({ videoId }) {
         prev.filter((c) => c._id !== commentId)
       );
     } catch (err) {
-      console.error("Failed to delete comment");
+      console.error("Failed to delete comment", err);
     }
   };
 

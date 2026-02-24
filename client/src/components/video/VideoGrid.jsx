@@ -1,6 +1,11 @@
 import VideoCard from "./VideoCard";
 
-export default function VideoGrid({ videos = [] }) {
+export default function VideoGrid({
+  videos = [],
+  playlists = [],
+  onAddToPlaylist,
+  showPlaylistMenu = false,
+}) {
   if (!videos.length) return null;
 
   return (
@@ -9,6 +14,9 @@ export default function VideoGrid({ videos = [] }) {
         <VideoCard
           key={video._id}
           video={video}
+          playlists={playlists}
+          onAddToPlaylist={onAddToPlaylist}
+          showPlaylistMenu={showPlaylistMenu}
         />
       ))}
     </div>

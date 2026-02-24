@@ -8,7 +8,8 @@ import useSubscribe from "../hooks/useSubscribe";
 import SubscribeButton from "../components/ui/SubscribeButton";
 import EmptyState from "../components/ui/EmptyState";
 
-import { getVideosByChannel } from "../api/video.api";
+import { getAllVideos } from "../api/video.api";
+import { getChannelProfile } from "../api/user.api";
 import VideoGrid from "../components/video/VideoGrid";
 
 export default function Channel() {
@@ -22,28 +23,45 @@ export default function Channel() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    fetchChannel();
+    fetchChannelData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [username]);
 
-  const fetchChannel = async () => {
+  const fetchChannelData = async () => {
     try {
       setLoading(true);
+      setError("");
 
-      // 🔑 ONLY API USED (exists in your structure)
-      const res = await getVideosByChannel(username);
-      const data = res.data.data;
+      const profileRes = await getChannelProfile(username);
+      const channelData = profileRes?.data?.data;
 
-      setChannel(data.channel);
-      setVideos(data.videos || []);
+      if (!channelData?._id) {
+        throw new Error("Channel not found");
+      }
+
+      const videosRes = await getAllVideos({
+        userId: channelData._id,
+        page: 1,
+        limit: 24,
+        sortBy: "createdAt",
+        sortType: "desc",
+      });
+
+      setChannel(channelData);
+      setVideos(videosRes?.data?.data?.videos || []);
     } catch (err) {
-      setError("Failed to load channel");
+      setError(
+        err?.response?.status === 404
+          ? "Channel not found"
+          : "Failed to load channel"
+      );
+      setChannel(null);
+      setVideos([]);
     } finally {
       setLoading(false);
     }
   };
 
-  // 🔒 Subscription logic via hook (NO API CALL HERE)
   const subscribe = useSubscribe({
     channelId: channel?._id,
     initialSubscribed: channel?.isSubscribed,
@@ -53,7 +71,7 @@ export default function Channel() {
   if (loading) {
     return (
       <MainLayout>
-        <div className="text-neutral-400">Loading channel…</div>
+        <div className="text-neutral-400">Loading channel...</div>
       </MainLayout>
     );
   }
@@ -95,7 +113,7 @@ export default function Channel() {
           </div>
 
           {/* Subscribe button */}
-          {user && user._id !== channel._id && (
+          {user && String(user._id) !== String(channel._id) && (
             <SubscribeButton
               subscribed={subscribe.subscribed}
               count={subscribe.count}
@@ -145,7 +163,7 @@ export default function Channel() {
               ) : (
                 <EmptyState
                   title="No videos yet"
-                  description="This channel hasn’t uploaded any videos."
+                  description="This channel has not uploaded any videos."
                 />
               )}
             </>

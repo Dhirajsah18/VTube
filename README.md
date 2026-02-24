@@ -1,186 +1,131 @@
-# 📺 VTube
+# VTube
 
-VTube is a **YouTube-inspired full-stack video streaming web application** that allows users to upload, watch, interact with, and manage video content. The platform is built using modern web technologies and follows scalable production-level architecture.
+VTube is a full-stack video streaming app inspired by YouTube. This repository contains both:
 
----
+- `client/` - React + Vite frontend
+- `server/` - Node.js + Express + MongoDB backend API
 
-## 🚀 Project Overview
+## Features
 
-VTube provides a complete video-sharing ecosystem where users can:
+- JWT authentication with refresh token flow
+- Video upload and streaming-ready metadata APIs
+- Comments, likes, playlists, and subscriptions
+- Channel/dashboard endpoints
+- Cloudinary media integration
 
-- 📤 Upload and stream videos  
-- ❤️ Like and comment on videos  
-- 📺 Subscribe to creators  
-- 📁 Create and manage playlists  
-- 🔎 Explore video feeds and channels  
-- 👤 Manage user profiles and authentication  
+## Tech Stack
 
-The backend exposes **REST APIs** designed to be consumed by frontend or mobile applications.
+- Frontend: React, Vite, Tailwind CSS, Axios, React Router
+- Backend: Node.js, Express, MongoDB (Mongoose), JWT, Multer, Cloudinary
 
----
+## Project Structure
 
-## ✨ Features
-
-### 🔐 Authentication & Users
-- User Registration & Login  
-- JWT Authentication with Refresh Tokens  
-- Profile Management  
-- Secure Protected Routes  
-
----
-
-### 🎬 Video Management
-- Video Upload System  
-- Video Streaming Support  
-- Video Metadata Handling  
-- Pagination & Feed System  
-
----
-
-### 💬 Interaction Features
-- Comment System  
-- Like / Unlike Videos  
-- Playlist Creation & Management  
-- Channel Subscription System  
-
----
-
-### 📊 Dashboard & Utilities
-- Channel Analytics APIs  
-- Health Check Endpoints  
-- Cloud Media Storage Integration  
-
----
-
-## 🛠 Tech Stack
-
-### 🎨 Frontend
-- React  
-- Vite  
-- Tailwind CSS  
-- Axios  
-- Context API  
-
----
-
-### ⚙ Backend
-- Node.js  
-- Express.js  
-- MongoDB (Mongoose)  
-- JWT Authentication  
-- Multer (File Uploads)  
-- Cloudinary (Media Storage)  
-
----
-
-## 🏗 Architecture
-
-### Backend Architecture
-- MVC Pattern  
-- RESTful API Design  
-- Modular Controllers  
-- Middleware-Based Authentication  
-- Cloud Media Upload Handling  
-
-#### 📂 Backend Structure
-```
-server/
-│
-├── controllers
-├── models
-├── routes
-├── middlewares
-├── utils
-├── db
-├── app.js
-└── index.js
+```text
+.
+|- client/
+|  |- src/
+|  |  |- api/
+|  |  |- components/
+|  |  |- context/
+|  |  |- hooks/
+|  |  |- layout/
+|  |  |- pages/
+|  |  |- routes/
+|  |  `- utils/
+|  `- package.json
+`- server/
+   |- src/
+   |  |- controllers/
+   |  |- db/
+   |  |- middlewares/
+   |  |- models/
+   |  |- routes/
+   |  |- utils/
+   |  |- app.js
+   |  `- index.js
+   `- package.json
 ```
 
----
+## Prerequisites
 
-### 📂 Frontend Structure
-```
-client/
-│
-├── components
-├── pages
-├── context
-├── layout
-├── api
-├── hooks
-├── utils
-└── routes
-```
+- Node.js
+- npm
+- MongoDB instance
+- Cloudinary account
 
----
+## Setup
 
-## ⚡ Installation Guide
+1. Clone this repository:
 
-### 📥 Clone Repositories
-
-#### Backend
 ```bash
-git clone https://github.com/Dhirajsah18/vTube-backend-practice
-cd vTube-backend-practice
+git clone <your-repo-url>
+cd vTube
+```
+
+2. Install backend dependencies:
+
+```bash
+cd server
 npm install
 ```
 
----
+3. Install frontend dependencies:
 
-#### Frontend
 ```bash
-git clone https://github.com/Dhirajsah18/vTube-frontend-practice
-cd vTube-frontend-practice/client
+cd ../client
 npm install
 ```
 
----
+## Environment Variables (server/.env)
 
-## 🔑 Environment Variables (Backend)
+Create `server/.env` with:
 
-Create a `.env` file inside the backend root directory:
-
-```
-PORT=
+```env
+PORT=8000
 MONGODB_URI=
-JWT_SECRET=
-JWT_REFRESH_SECRET=
+CORS_ORIGIN=http://localhost:5173
+
+ACCESS_TOKEN_SECRET=
+ACCESS_TOKEN_EXPIRY=1d
+REFRESH_TOKEN_SECRET=
+REFRESH_TOKEN_EXPIRY=10d
 
 CLOUDINARY_CLOUD_NAME=
 CLOUDINARY_API_KEY=
 CLOUDINARY_API_SECRET=
 ```
 
----
+## Run Locally
 
-## ▶ Running the Project
+1. Start backend (from `server/`):
 
-### Start Backend
 ```bash
 npm run dev
 ```
 
-### Start Frontend
+2. Start frontend (from `client/`):
+
 ```bash
 npm run dev
 ```
 
----
+Frontend runs on `http://localhost:5173` and backend on `http://localhost:8000` by default.
 
-## 🎯 Learning Goals
+## API Base Path
 
-This project demonstrates:
+Backend routes are mounted under:
 
-- Full Stack Development  
-- REST API Design  
-- Authentication Systems  
-- Cloud Media Handling  
-- Scalable UI Architecture  
-- Production-Ready Web Application Development  
+- `/api/v1/healthcheck`
+- `/api/v1/users`
+- `/api/v1/videos`
+- `/api/v1/comments`
+- `/api/v1/likes`
+- `/api/v1/playlists`
+- `/api/v1/subscriptions`
+- `/api/v1/tweets`
+- `/api/v1/dashboard`
 
----
+## Author
 
-## 👨‍💻 Author
-
-**Dhiraj Sah**  
-🔗 GitHub: https://github.com/Dhirajsah18  
+Dhiraj Sah
+GitHub: https://github.com/Dhirajsah18

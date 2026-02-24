@@ -11,9 +11,11 @@ import {
   getUserChannelProfile,
   getWatchHistory,
   getCurrentUser,
+  searchChannels,
 } from "../controllers/user.controllers.js";
 import { upload } from "../middlewares/multer.middlewares.js";
 import { verifyJWT } from "../middlewares/auth.middlewares.js";
+import { optionalAuth } from "../middlewares/optionalAuth.middleware.js";
 
 const router = Router();
 
@@ -45,7 +47,8 @@ router.route("/cover-image").patch(
   updateUserCoverImage
 );
 
-router.route("/c/:username").get(verifyJWT, getUserChannelProfile);
+router.route("/search").get(optionalAuth, searchChannels);
+router.route("/c/:username").get(optionalAuth, getUserChannelProfile);
 router.route("/watch-history").get(verifyJWT, getWatchHistory);
 
 export default router;

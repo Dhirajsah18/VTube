@@ -116,13 +116,19 @@ const getVideoById = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Invalid video ID");
   }
 
-  const userId = req.user?._id;
+  // Count a view whenever this endpoint is opened.
+  await Video.findByIdAndUpdate(videoId, { $inc: { views: 1 } });
+
+  const userId = req.user?._id
+    ? new mongoose.Types.ObjectId(req.user._id)
+    : null;
 
   const video = await Video.aggregate([
     { $match: { _id: new mongoose.Types.ObjectId(videoId) } },
 
     { $lookup: { from: "users", localField: "owner", foreignField: "_id", as: "owner" } },
     { $unwind: "$owner" },
+    { $addFields: { ownerId: "$owner._id" } },
 
     { $lookup: { from: "likes", localField: "_id", foreignField: "video", as: "likes" } },
     { $addFields: { likesCount: { $size: "$likes" } } },
@@ -152,7 +158,7 @@ const getVideoById = asyncHandler(async (req, res) => {
       ]
       : [{ $addFields: { isLiked: false } }]),
 
-    { $lookup: { from: "subscriptions", localField: "owner", foreignField: "channel", as: "subs" } },
+    { $lookup: { from: "subscriptions", localField: "ownerId", foreignField: "channel", as: "subs" } },
     { $addFields: { subscribersCount: { $size: "$subs" } } },
 
     ...(userId
@@ -160,7 +166,7 @@ const getVideoById = asyncHandler(async (req, res) => {
         {
           $lookup: {
             from: "subscriptions",
-            let: { channelId: "$owner" },
+            let: { channelId: "$ownerId" },
             pipeline: [
               {
                 $match: {
@@ -180,7 +186,7 @@ const getVideoById = asyncHandler(async (req, res) => {
       ]
       : [{ $addFields: { isSubscribed: false } }]),
 
-    { $project: { likes: 0, userLike: 0, subs: 0, userSub: 0 } },
+    { $project: { likes: 0, userLike: 0, subs: 0, userSub: 0, ownerId: 0 } },
   ]);
 
 

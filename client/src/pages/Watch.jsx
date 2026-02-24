@@ -5,6 +5,10 @@ import MainLayout from "../layout/MainLayout";
 import { useAuth } from "../context/AuthContext";
 
 import { getVideoById } from "../api/video.api";
+import {
+  addVideoToPlaylist,
+  getUserPlaylists,
+} from "../api/playlist.api";
 
 import useLike from "../hooks/useLike";
 import useSubscribe from "../hooks/useSubscribe";
@@ -13,6 +17,7 @@ import VideoPlayer from "../components/video/VideoPlayer";
 import LikeButton from "../components/ui/LikeButton";
 import SubscribeButton from "../components/ui/SubscribeButton";
 import CommentList from "../components/comment/CommentList";
+import AddToPlaylistMenu from "../components/playlist/AddToPlaylistMenu";
 
 export default function Watch() {
   const { videoId } = useParams();
@@ -21,6 +26,13 @@ export default function Watch() {
   const [video, setVideo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [playlists, setPlaylists] = useState([]);
+  const [playlistLoading, setPlaylistLoading] = useState(false);
+  const [playlistMessage, setPlaylistMessage] = useState("");
+
+  const ownerId = video?.owner?._id || video?.owner;
+  const isOwnVideo =
+    !!user?._id && !!ownerId && String(user._id) === String(ownerId);
 
   // fetch video only
   useEffect(() => {
@@ -28,15 +40,49 @@ export default function Watch() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [videoId]);
 
+  useEffect(() => {
+    if (!user?._id) return;
+    fetchPlaylists();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?._id]);
+
   const fetchVideo = async () => {
     try {
       setLoading(true);
       const res = await getVideoById(videoId);
       setVideo(res.data.data);
     } catch (err) {
+      console.error("Failed to load video", err);
       setError("Failed to load video");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchPlaylists = async () => {
+    try {
+      setPlaylistLoading(true);
+      const res = await getUserPlaylists(user._id);
+      const nextPlaylists = res?.data?.data || [];
+      setPlaylists(nextPlaylists);
+    } catch (err) {
+      console.error("Failed to load playlists", err);
+    } finally {
+      setPlaylistLoading(false);
+    }
+  };
+
+  const handleAddToPlaylist = async (playlistId) => {
+    if (!video?._id || !playlistId) return;
+    try {
+      setPlaylistMessage("");
+      await addVideoToPlaylist(video._id, playlistId);
+      setPlaylistMessage("Saved to playlist");
+    } catch (err) {
+      console.error("Failed to add video to playlist", err);
+      setPlaylistMessage(
+        err?.response?.data?.message || "Could not add to playlist"
+      );
     }
   };
 
@@ -49,7 +95,7 @@ export default function Watch() {
   });
 
   const subscribe = useSubscribe({
-    channelId: video?.owner?._id,
+    channelId: ownerId,
     initialSubscribed: video?.isSubscribed,
     initialCount: video?.subscribersCount,
   });
@@ -97,19 +143,42 @@ export default function Watch() {
             disabled={!user || like.loading}
           />
 
-          <SubscribeButton
-            subscribed={subscribe.subscribed}
-            count={subscribe.count}
-            onClick={subscribe.toggle}
-            disabled={!user || subscribe.loading}
-          />
+          {user && !isOwnVideo && (
+            <SubscribeButton
+              subscribed={subscribe.subscribed}
+              count={subscribe.count}
+              onClick={subscribe.toggle}
+              disabled={subscribe.loading}
+            />
+          )}
 
           {!user && (
             <span className="text-sm text-neutral-500">
               Login to like or subscribe
             </span>
           )}
+
+          {user && isOwnVideo && (
+            <span className="text-sm text-neutral-500">
+              This is your channel
+            </span>
+          )}
+
+          {user && (
+            <AddToPlaylistMenu
+              playlists={playlists}
+              onAdd={handleAddToPlaylist}
+              disabled={playlistLoading}
+              className="ml-auto"
+            />
+          )}
         </div>
+
+        {user && playlistMessage && (
+          <div className="mt-3 text-sm text-neutral-400">
+            {playlistMessage}
+          </div>
+        )}
 
         {/* Description */}
         <div className="mt-4 bg-neutral-900 border border-neutral-800 rounded-xl p-4">

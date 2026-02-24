@@ -31,6 +31,7 @@ const getChannelStats = asyncHandler(async (req, res) => {
         totalVideos,
         totalViews,
         totalSubscribers,
+        subscribersCount: totalSubscribers,
         totalLikes
     }, "Channel stats fetched successfully"));
 })

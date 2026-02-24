@@ -14,15 +14,6 @@ export const getVideoById = (videoId) => {
   return axios.get(`/videos/${videoId}`);
 };
 
-/**
- * Get videos by channel (Channel page)
- * username is used as param
- */
-export const getVideosByChannel = (username) => {
-  return axios.get(`/videos/channel/${username}`);
-};
-
-
 // Creator dashboard stats
 export const getDashboardStats = () => {
   return axios.get("/dashboard");

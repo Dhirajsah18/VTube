@@ -13,7 +13,7 @@ const toggleSubscription = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Invalid channel id");
   }
 
-  if (channelId === String(req.user._id)) {
+  if (new mongoose.Types.ObjectId(channelId).equals(req.user._id)) {
     throw new ApiError(400, "Cannot subscribe to yourself");
   }
 

@@ -376,6 +376,98 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
         .json(new ApiResponse(200, channel[0], "User Channel profile fetched successfully"))
 })
 
+const searchChannels = asyncHandler(async (req, res) => {
+    const { query = "", page = 1, limit = 10 } = req.query
+    const trimmedQuery = String(query).trim()
+
+    if (!trimmedQuery) {
+        return res
+            .status(200)
+            .json(new ApiResponse(200, { channels: [], total: 0 }, "Channels fetched successfully"))
+    }
+
+    const escapedQuery = trimmedQuery.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+    const regex = new RegExp(escapedQuery, "i")
+    const currentUserId = req.user?._id || null
+
+    const channels = await User.aggregate([
+        {
+            $match: {
+                $or: [
+                    { username: { $regex: regex } },
+                    { fullName: { $regex: regex } },
+                ]
+            }
+        },
+        {
+            $lookup: {
+                from: "subscriptions",
+                localField: "_id",
+                foreignField: "channel",
+                as: "subscribers"
+            }
+        },
+        {
+            $lookup: {
+                from: "videos",
+                let: { ownerId: "$_id" },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    { $eq: ["$owner", "$$ownerId"] },
+                                    { $eq: ["$isPublished", true] }
+                                ]
+                            }
+                        }
+                    },
+                    { $count: "count" }
+                ],
+                as: "publishedVideos"
+            }
+        },
+        {
+            $addFields: {
+                subscribersCount: { $size: "$subscribers" },
+                videosCount: {
+                    $ifNull: [{ $first: "$publishedVideos.count" }, 0]
+                },
+                isSubscribed: currentUserId
+                    ? { $in: [currentUserId, "$subscribers.subscriber"] }
+                    : false
+            }
+        },
+        {
+            $sort: { subscribersCount: -1, createdAt: -1 }
+        },
+        {
+            $project: {
+                username: 1,
+                fullName: 1,
+                avatar: 1,
+                coverImage: 1,
+                subscribersCount: 1,
+                videosCount: 1,
+                isSubscribed: 1,
+            }
+        },
+        { $skip: (Number(page) - 1) * Number(limit) },
+        { $limit: Number(limit) }
+    ])
+
+    const total = await User.countDocuments({
+        $or: [
+            { username: { $regex: regex } },
+            { fullName: { $regex: regex } },
+        ]
+    })
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, { channels, total }, "Channels fetched successfully"))
+})
+
 const getWatchHistory = asyncHandler(async (req, res) => {
     const user = await User.aggregate([
         {
@@ -433,5 +525,6 @@ export {
     updateUserAvatar,
     updateUserCoverImage,
     getUserChannelProfile,
+    searchChannels,
     getWatchHistory
 }
