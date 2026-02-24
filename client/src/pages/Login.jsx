@@ -42,7 +42,7 @@ export default function Login() {
       const res = await loginUser(form);
 
       // backend returns user inside data
-      setUser(res.data.data);
+      setUser(res.data.data.user || res.data.data);
 
       // 👇 go back to protected page user wanted
       navigate(redirectTo, { replace: true });
@@ -135,3 +135,4 @@ export default function Login() {
     </AuthLayout>
   );
 }
+

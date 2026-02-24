@@ -1,11 +1,32 @@
 import axios from "axios";
 
+const normalizeApiBaseUrl = (rawUrl) => {
+  const fallback = "http://localhost:8000/api/v1";
+  if (!rawUrl) return fallback;
+
+  let url = String(rawUrl).trim();
+
+  // Handle accidental values like: VITE_API_URL=https://...
+  if (url.startsWith("VITE_API_URL=")) {
+    url = url.slice("VITE_API_URL=".length);
+  }
+
+  url = url.replace(/\/+$/, "");
+
+  // Avoid duplicated /users segment when env is misconfigured.
+  if (url.endsWith("/users")) {
+    url = url.slice(0, -"/users".length);
+  }
+
+  return url || fallback;
+};
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: normalizeApiBaseUrl(import.meta.env.VITE_API_URL),
   withCredentials: true, // refreshToken cookie
 });
 
-// ✅ REQUEST INTERCEPTOR (ACCESS TOKEN)
+// request interceptor (access token)
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("accessToken");
@@ -17,7 +38,7 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// RESPONSE INTERCEPTOR (REFRESH TOKEN)
+// response interceptor (refresh token)
 let isRefreshing = false;
 let failedQueue = [];
 
@@ -62,11 +83,7 @@ api.interceptors.response.use(
       try {
         const res = await api.post("/users/refresh-token");
 
-        // 🔥 MOST IMPORTANT LINE
-        localStorage.setItem(
-          "accessToken",
-          res.data.data.accessToken
-        );
+        localStorage.setItem("accessToken", res.data.data.accessToken);
 
         processQueue(null);
         return api(originalRequest);

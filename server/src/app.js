@@ -4,9 +4,42 @@ import cookieParser from "cookie-parser";
 
 const app = express();
 
+const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:5173")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+const isAllowedOrigin = (origin) => {
+  if (!origin) return true;
+
+  if (allowedOrigins.includes(origin)) {
+    return true;
+  }
+
+  // Allow Vercel preview domains when configured as *.vercel.app
+  if (allowedOrigins.includes("*.vercel.app")) {
+    try {
+      const { hostname } = new URL(origin);
+      if (hostname.endsWith(".vercel.app")) {
+        return true;
+      }
+    } catch {
+      return false;
+    }
+  }
+
+  return false;
+};
+
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || "http://localhost:5173",
+    origin: (origin, callback) => {
+      if (isAllowedOrigin(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("Not allowed by CORS"));
+    },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
