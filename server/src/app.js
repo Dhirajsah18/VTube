@@ -9,50 +9,27 @@ const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:5173")
   .map((origin) => origin.trim())
   .filter(Boolean);
 
-const isAllowedOrigin = (origin) => {
-  if (!origin) return true;
-
-  if (allowedOrigins.includes(origin)) {
-    return true;
-  }
-
-  // Allow Vercel preview domains when configured as *.vercel.app
-  if (allowedOrigins.includes("*.vercel.app")) {
-    try {
-      const { hostname } = new URL(origin);
-      if (hostname.endsWith(".vercel.app")) {
-        return true;
-      }
-    } catch {
-      return false;
-    }
-  }
-
-  return false;
-};
-
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (isAllowedOrigin(origin)) {
+      // allow non-browser clients (no Origin header)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
 
       return callback(new Error("Not allowed by CORS"));
     },
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
-// common middlewares
 app.use(express.json({ limit: "16kb" }));
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 app.use(express.static("public"));
 app.use(cookieParser());
 
-// routes
 import healthcheckRouter from "./routes/healthcheck.routes.js";
 import userRouter from "./routes/user.routes.js";
 import tweetRouter from "./routes/tweet.routes.js";
@@ -73,7 +50,6 @@ app.use("/api/v1/likes", likeRouter);
 app.use("/api/v1/playlists", playlistRouter);
 app.use("/api/v1/dashboard", dashboardRouter);
 
-// error middleware (must be last)
 import { errorHandler } from "./middlewares/error.middlewares.js";
 app.use(errorHandler);
 
