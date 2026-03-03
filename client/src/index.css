@@ -40,3 +40,10 @@ a {
 .animate-slideIn {
   animation: slideIn 0.25s ease-out;
 }
+
+.glass-panel {
+  background: rgba(23, 23, 23, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}

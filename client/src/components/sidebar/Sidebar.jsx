@@ -8,6 +8,7 @@ import {
 
 const links = [
   { to: "/", label: "Home", icon: HiHome },
+  { to: "/tweets", label: "Tweets", icon: HiCollection },
   { to: "/playlists", label: "Playlists", icon: HiCollection },
   { to: "/dashboard", label: "Dashboard", icon: HiViewGrid },
   { to: "/upload", label: "Upload", icon: HiUpload },
@@ -15,7 +16,7 @@ const links = [
 
 export default function Sidebar() {
   return (
-    <aside className="hidden md:block w-56 bg-neutral-950 border-r border-neutral-800">
+    <aside className="hidden md:block w-56 glass-panel">
       <nav className="p-3 space-y-1">
         {links.map(({ to, label, icon: Icon }) => (
           <NavLink

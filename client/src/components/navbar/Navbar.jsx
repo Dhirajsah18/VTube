@@ -23,7 +23,7 @@ export default function Navbar({ onMenuClick }) {
   const handleLogout = async () => {
     try {
       await logoutUser();
-    } catch (err) {
+    } catch {
       console.error("Logout failed");
     } finally {
       // clear auth state no matter what
@@ -40,7 +40,7 @@ export default function Navbar({ onMenuClick }) {
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-neutral-950 border-b border-neutral-800">
+    <header className="sticky top-0 z-40 glass-panel">
       <div className="flex items-center justify-between px-4 md:px-6 h-14">
 
         {/* Left */}
@@ -107,7 +107,7 @@ export default function Navbar({ onMenuClick }) {
           {!loading && user && (
             <div className="flex items-center gap-3">
               <Link
-                to={`/c/${user.username}`}
+                to="/profile"
                 className="flex items-center gap-2"
               >
                 <img

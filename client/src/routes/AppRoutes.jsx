@@ -6,10 +6,12 @@ import Upload from "../pages/Upload";
 import Login from "../pages/Login";
 import Signup from "../pages/Signup";
 import Channel from "../pages/Channel";
+import ChannelPlaylist from "../pages/ChannelPlaylist";
 import Dashboard from "../pages/Dashboard";
 import Playlists from "../pages/Playlists";
 import Profile from "../pages/Profile";
 import SearchResults from "../pages/SearchResults";
+import Tweets from "../pages/Tweets";
 
 import ProtectedRoute from "./ProtectedRoute";
 
@@ -22,6 +24,10 @@ export default function AppRoutes() {
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/c/:username" element={<Channel />} />
+      <Route
+        path="/c/:username/playlists/:playlistId"
+        element={<ChannelPlaylist />}
+      />
       <Route path="/search" element={<SearchResults />} />
 
       {/* protected routes */}
@@ -57,6 +63,15 @@ export default function AppRoutes() {
         element={
           <ProtectedRoute>
             <Profile />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/tweets"
+        element={
+          <ProtectedRoute>
+            <Tweets />
           </ProtectedRoute>
         }
       />

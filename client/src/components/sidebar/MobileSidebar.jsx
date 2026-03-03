@@ -9,6 +9,7 @@ import {
 
 const links = [
   { to: "/", label: "Home", icon: HiHome },
+  { to: "/tweets", label: "Tweets", icon: HiCollection },
   { to: "/playlists", label: "Playlists", icon: HiCollection },
   { to: "/dashboard", label: "Dashboard", icon: HiViewGrid },
   { to: "/upload", label: "Upload", icon: HiUpload },

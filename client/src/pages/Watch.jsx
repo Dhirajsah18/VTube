@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 import MainLayout from "../layout/MainLayout";
 import { useAuth } from "../context/AuthContext";
@@ -103,7 +103,7 @@ export default function Watch() {
   if (loading) {
     return (
       <MainLayout>
-        <div className="text-neutral-400">Loading video…</div>
+        <div className="text-neutral-400">Loading video...</div>
       </MainLayout>
     );
   }
@@ -130,8 +130,17 @@ export default function Watch() {
         {/* Meta */}
         <div className="flex items-center gap-4 text-sm text-neutral-400 mt-2">
           <span>{video.views} views</span>
-          <span>•</span>
-          <span>@{video.owner?.username || "unknown"}</span>
+          <span>|</span>
+          {video.owner?.username ? (
+            <Link
+              to={`/c/${video.owner.username}`}
+              className="hover:text-neutral-200"
+            >
+              @{video.owner.username}
+            </Link>
+          ) : (
+            <span>@unknown</span>
+          )}
         </div>
 
         {/* Actions */}

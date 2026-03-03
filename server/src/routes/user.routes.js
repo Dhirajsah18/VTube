@@ -12,6 +12,8 @@ import {
   getWatchHistory,
   getCurrentUser,
   searchChannels,
+  removeVideoFromWatchHistory,
+  clearWatchHistory,
 } from "../controllers/user.controllers.js";
 import { upload } from "../middlewares/multer.middlewares.js";
 import { verifyJWT } from "../middlewares/auth.middlewares.js";
@@ -49,6 +51,12 @@ router.route("/cover-image").patch(
 
 router.route("/search").get(optionalAuth, searchChannels);
 router.route("/c/:username").get(optionalAuth, getUserChannelProfile);
-router.route("/watch-history").get(verifyJWT, getWatchHistory);
+router
+  .route("/watch-history")
+  .get(verifyJWT, getWatchHistory)
+  .delete(verifyJWT, clearWatchHistory);
+router
+  .route("/watch-history/:videoId")
+  .delete(verifyJWT, removeVideoFromWatchHistory);
 
 export default router;

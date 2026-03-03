@@ -19,3 +19,7 @@ export const deletePlaylist = (playlistId) => {
 export const addVideoToPlaylist = (videoId, playlistId) => {
   return api.patch(`/playlists/add/${videoId}/${playlistId}`);
 };
+
+export const removeVideoFromPlaylist = (videoId, playlistId) => {
+  return api.patch(`/playlists/remove/${videoId}/${playlistId}`);
+};

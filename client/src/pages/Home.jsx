@@ -38,10 +38,7 @@ export default function Home() {
       const res = await getAllVideos({ page, limit: 12 });
       const { videos, total } = res.data.data;
 
-      setVideos((prev) =>
-        page === 1 ? videos : [...prev, ...videos]
-      );
-
+      setVideos((prev) => (page === 1 ? videos : [...prev, ...videos]));
       setHasNext(page * 12 < total);
     } catch (err) {
       console.error("Failed to load videos", err);
@@ -73,14 +70,14 @@ export default function Home() {
     <MainLayout>
       {loading && page === 1 ? (
         <div className="text-neutral-400">
-          Loading videos…
+          Loading videos...
         </div>
       ) : videos.length === 0 ? (
         <div className="text-neutral-500">
           No videos available
         </div>
       ) : (
-      <>
+        <>
           <VideoGrid
             videos={videos}
             playlists={playlists}
@@ -100,7 +97,7 @@ export default function Home() {
                   disabled:opacity-60
                 "
               >
-                {loading ? "Loading…" : "Load more"}
+                {loading ? "Loading..." : "Load more"}
               </button>
             </div>
           )}

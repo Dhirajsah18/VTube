@@ -224,10 +224,25 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 })
 
 const updateAccountDetails = asyncHandler(async (req, res) => {
-    const { fullname, email } = req.body
+    const { fullname, email, username } = req.body
 
-    if (!fullname?.trim() || !email?.trim()) {
+    if (!fullname?.trim() || !email?.trim() || !username?.trim()) {
         throw new ApiError(400, "All fields are required")
+    }
+
+    const normalizedEmail = email.trim().toLowerCase()
+    const normalizedUsername = username.trim().toLowerCase()
+
+    const existingUser = await User.findOne({
+        _id: { $ne: req.user?._id },
+        $or: [
+            { email: normalizedEmail },
+            { username: normalizedUsername }
+        ]
+    })
+
+    if (existingUser) {
+        throw new ApiError(409, "Email or username already in use")
     }
 
     const user = await User.findByIdAndUpdate(
@@ -235,11 +250,12 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
         {
             $set: {
                 fullName: fullname,
-                email: email
+                email: normalizedEmail,
+                username: normalizedUsername
             }
         },
         { new: true }
-    ).select("-password")
+    ).select("-password -refreshToken")
 
     return res
         .status(200)
@@ -514,6 +530,48 @@ const getWatchHistory = asyncHandler(async (req, res) => {
         .json(new ApiResponse(200, user[0].watchHistory, "User watch history fetched successfully"))
 })
 
+const removeVideoFromWatchHistory = asyncHandler(async (req, res) => {
+    const { videoId } = req.params
+
+    if (!mongoose.isValidObjectId(videoId)) {
+        throw new ApiError(400, "Invalid video id")
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+        req.user._id,
+        {
+            $pull: { watchHistory: new mongoose.Types.ObjectId(videoId) }
+        },
+        { new: true }
+    )
+
+    if (!updatedUser) {
+        throw new ApiError(404, "User not found")
+    }
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, null, "Video removed from watch history"))
+})
+
+const clearWatchHistory = asyncHandler(async (req, res) => {
+    const updatedUser = await User.findByIdAndUpdate(
+        req.user._id,
+        {
+            $set: { watchHistory: [] }
+        },
+        { new: true }
+    )
+
+    if (!updatedUser) {
+        throw new ApiError(404, "User not found")
+    }
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, [], "Watch history cleared successfully"))
+})
+
 export {
     registerUser,
     loginUser,
@@ -526,6 +584,8 @@ export {
     updateUserCoverImage,
     getUserChannelProfile,
     searchChannels,
-    getWatchHistory
+    getWatchHistory,
+    removeVideoFromWatchHistory,
+    clearWatchHistory
 }
 

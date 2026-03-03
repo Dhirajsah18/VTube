@@ -44,7 +44,6 @@ export default function VideoCard({
         to={`/watch/${video._id}`}
         className="block"
       >
-        {/* Thumbnail */}
         <div className="aspect-video bg-neutral-800 rounded-xl overflow-hidden">
           {video.thumbnail ? (
             <img
@@ -59,21 +58,38 @@ export default function VideoCard({
           )}
         </div>
 
-        {/* Info */}
         <div className="mt-3">
           <h3 className="text-sm font-medium line-clamp-2">
             {video.title}
           </h3>
-
-          <p className="text-xs text-neutral-400 mt-1">
-            {video.owner?.username || "Unknown"}
-          </p>
-
-          <p className="text-xs text-neutral-500">
-            {video.views} views
-          </p>
         </div>
       </Link>
+
+      <div className="mt-1">
+        {video.owner?.username ? (
+          <Link
+            to={`/c/${video.owner.username}`}
+            className="inline-flex items-center gap-2 text-xs text-neutral-400 hover:text-neutral-200"
+          >
+            <span className="h-5 w-5 rounded-full overflow-hidden bg-neutral-800">
+              {video.owner?.avatar ? (
+                <img
+                  src={video.owner.avatar}
+                  alt={video.owner.username}
+                  className="h-full w-full object-cover"
+                />
+              ) : null}
+            </span>
+            <span>@{video.owner.username}</span>
+          </Link>
+        ) : (
+          <p className="text-xs text-neutral-400">Unknown</p>
+        )}
+
+        <p className="text-xs text-neutral-500 mt-1">
+          {video.views} views
+        </p>
+      </div>
 
       {message && (
         <div className="mt-1 text-xs text-neutral-400">

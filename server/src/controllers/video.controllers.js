@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { Video } from "../models/video.models.js";
+import { User } from "../models/user.models.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { ApiError } from "../utils/ApiError.js";
@@ -118,6 +119,16 @@ const getVideoById = asyncHandler(async (req, res) => {
 
   // Count a view whenever this endpoint is opened.
   await Video.findByIdAndUpdate(videoId, { $inc: { views: 1 } });
+
+  if (req.user?._id) {
+    await User.findByIdAndUpdate(req.user._id, {
+      $pull: { watchHistory: new mongoose.Types.ObjectId(videoId) },
+    });
+
+    await User.findByIdAndUpdate(req.user._id, {
+      $push: { watchHistory: new mongoose.Types.ObjectId(videoId) },
+    });
+  }
 
   const userId = req.user?._id
     ? new mongoose.Types.ObjectId(req.user._id)
