@@ -4,35 +4,17 @@ import cookieParser from "cookie-parser";
 
 const app = express();
 
-const parseOrigins = (value = "") =>
-  value
-    .split(",")
-    .map((o) => o.trim())
-    .filter(Boolean);
-
-const fallbackOrigins = [
-  "http://localhost:5173",
-  "http://127.0.0.1:5173",
-];
-
-const allowedOrigins = [
-  ...new Set([
-    ...parseOrigins(process.env.CORS_ORIGIN || ""),
-    ...fallbackOrigins,
-  ]),
-];
+const allowedOrigins = (
+  process.env.CORS_ORIGIN ||
+  "https://v-tube-iota.vercel.app,http://localhost:5173,http://127.0.0.1:5173"
+)
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
 
 const corsOptions = {
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error(`CORS blocked: ${origin}`));
-    }
-  },
+  origin: allowedOrigins,
   credentials: true,
-  allowedHeaders: ["Content-Type", "Authorization"],
-  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
 };
 
 app.use(cors(corsOptions));
