@@ -4,7 +4,7 @@ import cookieParser from "cookie-parser";
 
 const app = express();
 
-const envOrigins = (process.env.CORS_ORIGIN || "")
+const envOrigins = ("https://v-tube-iota.vercel.app")
   .split(",")
   .map((origin) => origin.trim())
   .filter(Boolean);
