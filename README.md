@@ -53,9 +53,8 @@ VTube is a full-stack video streaming app inspired by YouTube. This repository c
 - MongoDB instance
 - Cloudinary account
 
-<<<<<<< HEAD
 ## Setup
-=======
+
 ---
 ## 📸 Screenshots
 ### Home Page
@@ -67,7 +66,7 @@ VTube is a full-stack video streaming app inspired by YouTube. This repository c
 ### Upload Page
 <img width="1910" height="847" alt="image" src="https://github.com/user-attachments/assets/3015216d-9275-4370-b96d-38be78c1cbac" />
 ---
->>>>>>> 1fe173b9c0f2dd7d6ce84ac10a4c065883a6c69f
+
 
 1. Clone this repository:
 
