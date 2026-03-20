@@ -4,39 +4,39 @@ import cookieParser from "cookie-parser";
 
 const app = express();
 
-const envOrigins = ("https://v-tube-iota.vercel.app")
-  .split(",")
-  .map((origin) => origin.trim())
-  .filter(Boolean);
+const parseOrigins = (value = "") =>
+  value
+    .split(",")
+    .map((o) => o.trim())
+    .filter(Boolean);
 
-const devOrigins = [
+const fallbackOrigins = [
   "http://localhost:5173",
-  "http://127.0.0.1:5173"
+  "http://127.0.0.1:5173",
 ];
 
 const allowedOrigins = [
-  ...new Set(
-    process.env.NODE_ENV === "production"
-      ? envOrigins
-      : [...envOrigins, ...devOrigins]
-  ),
+  ...new Set([
+    ...parseOrigins(process.env.CORS_ORIGIN || ""),
+    ...fallbackOrigins,
+  ]),
 ];
 
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      // allow non-browser clients (no Origin header)
-      if (!origin) return callback(null, true);
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error(`CORS blocked: ${origin}`));
+    }
+  },
+  credentials: true,
+  allowedHeaders: ["Content-Type", "Authorization"],
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+};
 
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
-
-      return callback(new Error("Not allowed by CORS"));
-    },
-    credentials: true,
-  })
-);
+app.use(cors(corsOptions));
+app.options(/.*/, cors(corsOptions));
 
 app.use(express.json({ limit: "16kb" }));
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
